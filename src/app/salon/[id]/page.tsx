@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
@@ -11,17 +12,38 @@ import {
   ImageOff,
 } from 'lucide-react'
 import type { Salon } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
 import AvailabilityForm from '@/components/AvailabilityForm'
 import { cleanIndianPhone } from '@/lib/phone'
 import QuestionsSection from '@/components/QuestionsSection'
 
-async function getSalon(id: string): Promise<Salon | null> {
-  const supabase = createClient(
+// Revalidate static pages every hour via ISR
+export const revalidate = 3600
+
+// Pre-render all salon pages at build time
+export async function generateStaticParams() {
+  const { data } = await supabase.from('salons').select('id')
+  return (data ?? []).map((s) => ({ id: String(s.id) }))
+}
+
+// Only select fields actually rendered on this page
+const SALON_SELECT =
+  'id, name, area, address, latitude, longitude, phone, website, rating, review_count, price_tier, specialities, photos, description'
+
+function getSalonClient() {
+  return createClient(
     (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').replace(/^﻿/, ''),
     (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '').replace(/^﻿/, '')
   )
-  const { data, error } = await supabase.from('salons').select('*').eq('id', id).single()
+}
+
+async function getSalon(id: string): Promise<Salon | null> {
+  const { data, error } = await getSalonClient()
+    .from('salons')
+    .select(SALON_SELECT)
+    .eq('id', id)
+    .single()
   if (error || !data) return null
   return data as Salon
 }
@@ -43,8 +65,14 @@ export default async function SalonDetailPage({ params }: { params: { id: string
       {/* ── Magazine hero ── */}
       <header className="relative h-[58vh] min-h-[26rem] w-full overflow-hidden">
         {hero ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={hero} alt={`${salon.name}, ${salon.area ?? 'Delhi'}`} className="absolute inset-0 w-full h-full object-cover" />
+          <Image
+            src={hero}
+            alt={`${salon.name}, ${salon.area ?? 'Delhi'}`}
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-rose-100">
             <ImageOff className="w-12 h-12 text-rose-400" strokeWidth={1.5} aria-hidden="true" />
@@ -122,8 +150,13 @@ export default async function SalonDetailPage({ params }: { params: { id: string
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {gallery.map((url, i) => (
                   <figure key={i} className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt={`${salon.name} — photo ${i + 2}`} className="absolute inset-0 w-full h-full object-cover" />
+                    <Image
+                      src={url}
+                      alt={`${salon.name} — photo ${i + 2}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
                   </figure>
                 ))}
               </div>
@@ -147,7 +180,7 @@ export default async function SalonDetailPage({ params }: { params: { id: string
             <p className="text-ink-muted text-sm mt-3 leading-relaxed">{salon.address}</p>
           </section>
 
-          {/* AI-generated questions checklist */}
+          {/* AI-generated questions — dynamic per visit, not statically generated */}
           <Suspense
             fallback={
               <div className="rounded-2xl bg-cream border border-line shadow-soft p-6 space-y-3">
