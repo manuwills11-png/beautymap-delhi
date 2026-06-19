@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import { PageTransition } from '@/components/PageTransition'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -32,7 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <Navbar />
-        <main id="main">{children}</main>
+        <main id="main">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </body>
     </html>
   )

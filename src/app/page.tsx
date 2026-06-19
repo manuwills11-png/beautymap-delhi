@@ -61,13 +61,19 @@ export default async function Home() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Copy — asymmetric, left-weighted */}
-          <div className="lg:col-span-6 animate-fade-up">
-            <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-oxblood-700 mb-6">
+          <div className="lg:col-span-6">
+            <div
+              className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-oxblood-700 mb-6 animate-fade-up"
+              style={{ animationDelay: '0ms' }}
+            >
               <span className="rule-gold" aria-hidden="true" />
               Delhi&apos;s Curated Bridal Edit
             </div>
 
-            <h1 className="font-playfair text-[2.75rem] leading-[1.05] sm:text-6xl lg:text-[4.25rem] font-bold text-ink tracking-tight">
+            <h1
+              className="font-playfair text-[2.75rem] leading-[1.05] sm:text-6xl lg:text-[4.25rem] font-bold text-ink tracking-tight animate-fade-up"
+              style={{ animationDelay: '120ms' }}
+            >
               The salon that
               <br />
               understands
@@ -75,12 +81,18 @@ export default async function Home() {
               <span className="text-oxblood-700 italic">your bridal vision</span>
             </h1>
 
-            <p className="mt-7 text-lg text-ink-soft leading-relaxed max-w-md">
+            <p
+              className="mt-7 text-lg text-ink-soft leading-relaxed max-w-md animate-fade-up"
+              style={{ animationDelay: '260ms' }}
+            >
               A high-end edit of Delhi&apos;s finest bridal salons — matched to your budget, your
               neighbourhood, and your style by an AI that actually listens.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div
+              className="mt-9 flex flex-wrap items-center gap-3 animate-fade-up"
+              style={{ animationDelay: '400ms' }}
+            >
               <ButtonLink href="/intake" size="lg" variant="primary">
                 Find your salon
                 <ArrowRight className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
@@ -92,7 +104,10 @@ export default async function Home() {
             </div>
 
             {/* Stats */}
-            <dl className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-line pt-8">
+            <dl
+              className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-line pt-8 animate-fade-up"
+              style={{ animationDelay: '540ms' }}
+            >
               {[
                 { value: '20+', label: 'Curated salons' },
                 { value: '4.5', label: 'Avg. rating', star: true },
@@ -114,7 +129,7 @@ export default async function Home() {
           {/* Editorial image collage — real salon photos */}
           <div className="lg:col-span-6 lg:pl-6">
             {heroImages.length >= 3 ? (
-              <div className="grid grid-cols-5 grid-rows-6 gap-3 sm:gap-4 h-[26rem] sm:h-[32rem] animate-fade-in">
+              <div className="grid grid-cols-5 grid-rows-6 gap-3 sm:gap-4 h-[26rem] sm:h-[32rem] animate-fade-in" style={{ animationDelay: '200ms' }}>
                 <figure className="col-span-3 row-span-6 relative rounded-2xl overflow-hidden shadow-card">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -176,7 +191,8 @@ export default async function Home() {
           {STEPS.map(({ Icon, title, body }, i) => (
             <li
               key={title}
-              className="relative bg-cream rounded-2xl border border-line p-7 shadow-soft"
+              className="relative bg-cream rounded-2xl border border-line p-7 shadow-soft hover:shadow-card transition-shadow duration-500 animate-fade-up"
+              style={{ animationDelay: `${i * 120}ms` }}
             >
               <span className="absolute top-6 right-6 font-playfair text-5xl font-bold text-gold-200 leading-none" aria-hidden="true">
                 {i + 1}
@@ -209,11 +225,12 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            {showcase.map((salon) => (
+            {showcase.map((salon, i) => (
               <Link
                 key={salon.id}
                 href={`/salon/${salon.id}`}
-                className="group relative aspect-[4/5] rounded-2xl overflow-hidden shadow-card focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory"
+                className="group relative aspect-[4/5] rounded-2xl overflow-hidden shadow-card focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory animate-fade-up"
+                style={{ animationDelay: `${i * 80}ms` }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -241,7 +258,7 @@ export default async function Home() {
         <div className="relative overflow-hidden rounded-3xl bg-oxblood-800 px-8 py-14 sm:px-14 sm:py-16 text-center">
           <div className="pointer-events-none absolute -top-16 -right-10 w-72 h-72 rounded-full bg-oxblood-700/60 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 -left-10 w-72 h-72 rounded-full bg-rose-600/30 blur-3xl" />
-          <div className="relative">
+          <div className="relative animate-fade-up">
             <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-cream max-w-xl mx-auto leading-tight">
               Your wedding deserves the right hands
             </h2>

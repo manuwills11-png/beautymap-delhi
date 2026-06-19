@@ -14,6 +14,7 @@ import {
 import type { Salon } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
+import { Reveal } from '@/components/ui/Reveal'
 import AvailabilityForm from '@/components/AvailabilityForm'
 import { cleanIndianPhone } from '@/lib/phone'
 import QuestionsSection from '@/components/QuestionsSection'
@@ -122,63 +123,71 @@ export default async function SalonDetailPage({ params }: { params: { id: string
         {/* Left column — editorial content */}
         <div className="lg:col-span-2 space-y-10">
           {salon.description && (
-            <section>
-              <SectionLabel>About</SectionLabel>
-              <p className="text-ink-soft leading-relaxed text-[17px] max-w-prose">{salon.description}</p>
-            </section>
+            <Reveal>
+              <section>
+                <SectionLabel>About</SectionLabel>
+                <p className="text-ink-soft leading-relaxed text-[17px] max-w-prose">{salon.description}</p>
+              </section>
+            </Reveal>
           )}
 
           {salon.specialities && salon.specialities.length > 0 && (
-            <section>
-              <SectionLabel>Specialities</SectionLabel>
-              <div className="flex flex-wrap gap-2">
-                {salon.specialities.map((s) => (
-                  <span
-                    key={s}
-                    className="px-3.5 py-1.5 rounded-full bg-cream border border-line text-ink-soft text-sm"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </section>
+            <Reveal>
+              <section>
+                <SectionLabel>Specialities</SectionLabel>
+                <div className="flex flex-wrap gap-2">
+                  {salon.specialities.map((s) => (
+                    <span
+                      key={s}
+                      className="px-3.5 py-1.5 rounded-full bg-cream border border-line text-ink-soft text-sm"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            </Reveal>
           )}
 
           {gallery.length > 0 && (
-            <section>
-              <SectionLabel>Gallery</SectionLabel>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                {gallery.map((url, i) => (
-                  <figure key={i} className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft">
-                    <Image
-                      src={url}
-                      alt={`${salon.name} — photo ${i + 2}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 50vw, 33vw"
-                    />
-                  </figure>
-                ))}
-              </div>
-            </section>
+            <Reveal delay={80}>
+              <section>
+                <SectionLabel>Gallery</SectionLabel>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {gallery.map((url, i) => (
+                    <figure key={i} className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-soft">
+                      <Image
+                        src={url}
+                        alt={`${salon.name} — photo ${i + 2}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                    </figure>
+                  ))}
+                </div>
+              </section>
+            </Reveal>
           )}
 
           {/* Map */}
-          <section>
-            <SectionLabel>Location</SectionLabel>
-            <div className="rounded-2xl overflow-hidden border border-line shadow-soft">
-              <iframe
-                src={mapsEmbedUrl}
-                width="100%"
-                height="340"
-                style={{ border: 0 }}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`Map showing the location of ${salon.name}`}
-              />
-            </div>
-            <p className="text-ink-muted text-sm mt-3 leading-relaxed">{salon.address}</p>
-          </section>
+          <Reveal delay={80}>
+            <section>
+              <SectionLabel>Location</SectionLabel>
+              <div className="rounded-2xl overflow-hidden border border-line shadow-soft">
+                <iframe
+                  src={mapsEmbedUrl}
+                  width="100%"
+                  height="340"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Map showing the location of ${salon.name}`}
+                />
+              </div>
+              <p className="text-ink-muted text-sm mt-3 leading-relaxed">{salon.address}</p>
+            </section>
+          </Reveal>
 
           {/* AI-generated questions — dynamic per visit, not statically generated */}
           <Suspense
@@ -200,7 +209,8 @@ export default async function SalonDetailPage({ params }: { params: { id: string
 
         {/* Right column — sticky action panel */}
         <aside className="lg:col-span-1">
-          <div className="lg:sticky lg:top-24 space-y-4">
+          <Reveal delay={120}>
+            <div className="lg:sticky lg:top-24 space-y-4">
             <div className="bg-cream rounded-2xl border border-line shadow-card p-6 space-y-3">
               <h2 className="font-playfair text-lg font-bold text-ink mb-1">Get in touch</h2>
 
@@ -250,7 +260,8 @@ export default async function SalonDetailPage({ params }: { params: { id: string
             </div>
 
             <AvailabilityForm salonName={salon.name} phone={salon.phone} />
-          </div>
+            </div>
+          </Reveal>
         </aside>
       </div>
     </div>

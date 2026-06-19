@@ -94,9 +94,9 @@ export default function IntakePage() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setBudget(selected ? '' : value)}
-                    className={`relative flex flex-col items-center text-center min-h-[44px] p-4 rounded-2xl border-2 transition-all duration-200 [touch-action:manipulation] ${
+                    className={`relative flex flex-col items-center text-center min-h-[44px] p-4 rounded-2xl border-2 transition-all duration-[250ms] active:scale-[0.97] [touch-action:manipulation] ${
                       selected
-                        ? 'border-oxblood-600 bg-oxblood-50 shadow-soft'
+                        ? 'border-oxblood-600 bg-oxblood-50 shadow-soft scale-[1.02]'
                         : 'border-line bg-cream hover:border-oxblood-300'
                     }`}
                   >
@@ -168,9 +168,9 @@ export default function IntakePage() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setStyle(selected ? '' : value)}
-                    className={`flex flex-col items-center gap-2 min-h-[44px] py-4 rounded-2xl border-2 transition-all duration-200 [touch-action:manipulation] ${
+                    className={`flex flex-col items-center gap-2 min-h-[44px] py-4 rounded-2xl border-2 transition-all duration-[250ms] active:scale-[0.97] [touch-action:manipulation] ${
                       selected
-                        ? 'border-oxblood-600 bg-oxblood-50 text-oxblood-700 shadow-soft'
+                        ? 'border-oxblood-600 bg-oxblood-50 text-oxblood-700 shadow-soft scale-[1.02]'
                         : 'border-line bg-cream text-ink hover:border-oxblood-300'
                     }`}
                   >
