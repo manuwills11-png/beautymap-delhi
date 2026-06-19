@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Intermediate data pipeline scripts (one-time use, not needed for the project)
+gen_geocoded_json.py
+gen_sql.py
+geocoded_data.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Next.js
+.next/
+out/
+node_modules/
+npm-debug.log*
+
+.vercel
