@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, ImageOff, Star } from 'lucide-react'
 import type { Salon } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
 import { ButtonLink } from '@/components/ui/Button'
+import { loadCompareSalons } from '@/components/CompareBar'
 
 /* ── Small "Best" pill badge ── */
 function BestBadge() {
@@ -71,6 +72,21 @@ function CompareContent() {
       setLoading(false)
       return
     }
+
+    // Fast path: use salon objects stashed in sessionStorage by CompareBar
+    const cached = loadCompareSalons()
+    if (cached?.length) {
+      const idsSet = new Set(ids)
+      const matching = cached.filter(s => idsSet.has(String(s.id)))
+      if (matching.length > 0) {
+        const map = new Map(matching.map(s => [String(s.id), s]))
+        setSalons(ids.map(id => map.get(id)).filter((s): s is Salon => !!s))
+        setLoading(false)
+        return
+      }
+    }
+
+    // Fallback: fetch from Supabase (direct URL / bookmarked link)
     const supabase = createClient(
       (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').replace(/^﻿/, ''),
       (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '').replace(/^﻿/, '')

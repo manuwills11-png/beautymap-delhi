@@ -14,6 +14,9 @@ import {
   Quote,
   Plus,
   Check,
+  Square,
+  CheckSquare,
+  LayoutGrid,
 } from 'lucide-react'
 import type { Salon } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
@@ -182,25 +185,25 @@ function StandardCard({
           salon={salon}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {/* Compare toggle overlay */}
+        {/* Compare toggle overlay — sized for clear visibility */}
         <button
           type="button"
           onClick={() => { if (!isDisabled) onToggleCompare(id) }}
           disabled={isDisabled}
           aria-pressed={isSelected}
           aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
-          className={`absolute top-2 left-2 z-10 grid place-items-center w-7 h-7 rounded-lg shadow-soft transition-all [touch-action:manipulation] ${
+          className={`absolute top-2 left-2 z-10 grid place-items-center w-9 h-9 rounded-xl shadow-soft transition-all [touch-action:manipulation] ${
             isSelected
               ? 'bg-oxblood-700 text-cream'
               : isDisabled
-              ? 'bg-cream/50 text-ink-muted/40 cursor-not-allowed'
-              : 'bg-cream/90 text-ink-soft hover:bg-cream hover:text-oxblood-700'
+              ? 'bg-cream/70 text-ink-muted/30 cursor-not-allowed border border-line'
+              : 'bg-cream/95 text-oxblood-400 border border-line/60 hover:bg-cream hover:text-oxblood-700 hover:border-oxblood-300'
           }`}
         >
           {isSelected ? (
-            <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden="true" />
+            <CheckSquare className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
           ) : (
-            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+            <Square className="w-5 h-5" strokeWidth={1.75} aria-hidden="true" />
           )}
         </button>
         <div className="absolute top-3 right-3 z-10">
@@ -340,6 +343,16 @@ function ResultsContent() {
           </Link>
         </div>
 
+        {/* Compare affordance — always visible once there are results */}
+        {results.length > 0 && (
+          <div className="flex items-center gap-2 mb-5 -mt-1">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cream border border-line shadow-soft text-xs font-medium text-ink-soft">
+              <LayoutGrid className="w-3 h-3 text-oxblood-600" strokeWidth={2} aria-hidden="true" />
+              Tap the checkbox on any card to compare salons
+            </span>
+          </div>
+        )}
+
         {/* Nudge banner */}
         {!isFiltered && (
           <div className="flex items-start gap-3 bg-oxblood-50/70 border border-oxblood-100 rounded-2xl px-5 py-4 mb-8">
@@ -409,7 +422,11 @@ function ResultsContent() {
         )}
       </div>
 
-      <CompareBar selectedIds={compareIds} onClear={() => setCompareIds([])} />
+      <CompareBar
+        selectedIds={compareIds}
+        selectedSalons={results.filter(s => compareIds.includes(String(s.id)))}
+        onClear={() => setCompareIds([])}
+      />
     </div>
   )
 }
