@@ -11,21 +11,28 @@ const playfair = Playfair_Display({
 
 const inter = Inter({
   subsets: ['latin'],
+  variable: '--font-inter',
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'BeautyMap – Find Your Bridal Salon in Delhi',
+  title: 'BeautyMap — Editorial Bridal Salon Discovery in Delhi',
   description:
-    'AI-powered bridal salon finder for Delhi. Discover the best salons matched to your budget, area, and style.',
+    'AI-curated bridal salon discovery for Delhi. Find the perfect salon matched to your budget, area, and style — sourced from real ratings and reviews.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={playfair.variable}>
-      <body className={`${inter.className} bg-white`}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+      <body className="font-sans bg-ivory text-ink min-h-dvh">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[1000] focus:bg-oxblood-700 focus:text-cream focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          Skip to content
+        </a>
         <Navbar />
-        {children}
+        <main id="main">{children}</main>
       </body>
     </html>
   )

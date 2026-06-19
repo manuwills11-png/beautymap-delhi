@@ -1,158 +1,329 @@
+'use client'
+
+import { Suspense, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
+import {
+  Sparkles,
+  ArrowLeft,
+  ArrowRight,
+  SearchX,
+  AlertTriangle,
+  ImageOff,
+  MapPin,
+  Quote,
+} from 'lucide-react'
 import type { Salon } from '@/lib/supabase'
+import { TierBadge, StarRating } from '@/components/ui/Tier'
+import { ButtonLink } from '@/components/ui/Button'
 
-async function getSalons(budget?: string, area?: string): Promise<Salon[]> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
-  let query = supabase
-    .from('salons')
-    .select('id, name, area, rating, review_count, price_tier, address, phone, website, photos')
-    .order('rating', { ascending: false })
-
-  if (budget) query = query.eq('price_tier', budget)
-  if (area) query = query.ilike('area', `%${area}%`)
-
-  const { data, error } = await query
-  if (error) {
-    console.error('Supabase error:', error)
-    return []
-  }
-  return (data ?? []) as Salon[]
-}
-
-const TIER_BADGE: Record<string, string> = {
-  premium: 'bg-amber-100 text-amber-700',
-  mid: 'bg-purple-100 text-purple-700',
-  budget: 'bg-green-100 text-green-700',
-}
+type ScoredSalon = Salon & { score: number; explanation?: string }
 
 const TIER_LABEL: Record<string, string> = {
-  premium: '👑 Premium',
-  mid: '💎 Mid-Range',
-  budget: '💰 Budget',
+  premium: 'Premium',
+  mid: 'Mid-Range',
+  budget: 'Budget',
 }
 
-export default async function ResultsPage({
-  searchParams,
-}: {
-  searchParams: { budget?: string; area?: string; date?: string; style?: string }
-}) {
-  const salons = await getSalons(searchParams.budget, searchParams.area)
+function LoadingState() {
+  return (
+    <div className="min-h-dvh bg-ivory pt-24 flex items-center justify-center">
+      <div className="text-center px-6">
+        <span className="inline-grid place-items-center w-16 h-16 rounded-2xl bg-oxblood-50 text-oxblood-700 mb-5 animate-fade-in">
+          <Sparkles className="w-7 h-7 animate-pulse" strokeWidth={1.75} aria-hidden="true" />
+        </span>
+        <p className="font-playfair text-2xl font-bold text-ink mb-2">Curating your matches…</p>
+        <p className="text-ink-muted text-sm">Our AI is scoring every salon for you</p>
+      </div>
+    </div>
+  )
+}
+
+function Photo({ salon, className }: { salon: ScoredSalon; className?: string }) {
+  if (salon.photos?.[0]) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={salon.photos[0]}
+        alt={`${salon.name}, ${salon.area ?? 'Delhi'}`}
+        className={className}
+      />
+    )
+  }
+  return (
+    <div className={`grid place-items-center bg-rose-100 ${className}`}>
+      <ImageOff className="w-8 h-8 text-rose-400" strokeWidth={1.5} aria-hidden="true" />
+    </div>
+  )
+}
+
+/* Large featured card — for AI top picks */
+function FeaturedCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: number; salonHref: string }) {
+  return (
+    <article
+      className="group relative flex flex-col bg-cream rounded-3xl border border-line overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 animate-fade-up"
+      style={{ animationDelay: `${rank * 60}ms` }}
+    >
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <Photo
+          salon={salon}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/30 to-transparent" />
+        <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-oxblood-700 text-cream text-xs font-medium shadow-soft">
+          <Sparkles className="w-3.5 h-3.5" strokeWidth={2} aria-hidden="true" />
+          AI Pick · #{rank}
+        </span>
+        <div className="absolute top-4 right-4">
+          <TierBadge tier={salon.price_tier} className="bg-ivory/90 backdrop-blur" />
+        </div>
+      </div>
+
+      <div className="flex flex-col flex-1 p-6">
+        <h3 className="font-playfair text-xl font-bold text-ink leading-snug line-clamp-2">{salon.name}</h3>
+        <div className="mt-2 flex items-center gap-3 text-sm">
+          <StarRating rating={salon.rating} reviewCount={salon.review_count} />
+          <span className="inline-flex items-center gap-1 text-ink-muted">
+            <MapPin className="w-3.5 h-3.5" strokeWidth={2} aria-hidden="true" />
+            {salon.area ?? 'Delhi'}
+          </span>
+        </div>
+
+        {salon.explanation && (
+          <div className="mt-4 relative rounded-2xl bg-oxblood-50/70 border border-oxblood-100 p-4">
+            <Quote className="absolute -top-2 -left-1 w-5 h-5 text-gold-400 fill-gold-200" aria-hidden="true" />
+            <p className="text-[13px] leading-relaxed text-ink-soft pl-2">{salon.explanation}</p>
+          </div>
+        )}
+
+        <div className="mt-auto pt-5">
+          <ButtonLink href={salonHref} variant="secondary" size="sm" className="w-full">
+            View details
+            <ArrowRight className="w-4 h-4" strokeWidth={2} aria-hidden="true" />
+          </ButtonLink>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+/* Compact card — standard results */
+function StandardCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: number; salonHref: string }) {
+  return (
+    <Link
+      href={salonHref}
+      className="group flex flex-col bg-cream rounded-2xl border border-line overflow-hidden shadow-soft hover:shadow-card hover:border-oxblood-200 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory animate-fade-up"
+      style={{ animationDelay: `${rank * 40}ms` }}
+    >
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <Photo
+          salon={salon}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute top-3 right-3">
+          <TierBadge tier={salon.price_tier} className="bg-ivory/90 backdrop-blur" />
+        </div>
+      </div>
+      <div className="flex flex-col flex-1 p-4">
+        <h3 className="font-medium text-ink text-sm leading-snug line-clamp-2 group-hover:text-oxblood-700 transition-colors">
+          {salon.name}
+        </h3>
+        <p className="text-ink-muted text-xs mt-1 inline-flex items-center gap-1">
+          <MapPin className="w-3 h-3" strokeWidth={2} aria-hidden="true" />
+          {salon.area ?? 'Delhi'}
+        </p>
+        <div className="mt-3 pt-3 border-t border-line">
+          <StarRating rating={salon.rating} reviewCount={salon.review_count} className="text-sm" />
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function ResultsContent() {
+  const searchParams = useSearchParams()
+  const budget = searchParams.get('budget')
+  const area = searchParams.get('area')
+  const style = searchParams.get('style')
+  const date = searchParams.get('date')
+  const customNote = searchParams.get('customNote')
+
+  const [results, setResults] = useState<ScoredSalon[]>([])
+  const [isFiltered, setIsFiltered] = useState(true)
+  const [showAll, setShowAll] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLoading(true)
+    setShowAll(false)
+    fetch('/api/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ budget, area, style, customNote }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) setError(d.error)
+        else {
+          setResults(d.results ?? [])
+          setIsFiltered(d.filtered ?? true)
+        }
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [budget, area, style, customNote])
+
+  if (loading) return <LoadingState />
+
+  if (error) {
+    return (
+      <div className="min-h-dvh bg-ivory pt-24 flex items-center justify-center">
+        <div className="text-center px-6">
+          <span className="inline-grid place-items-center w-16 h-16 rounded-2xl bg-oxblood-50 text-oxblood-700 mb-5">
+            <AlertTriangle className="w-7 h-7" strokeWidth={1.75} aria-hidden="true" />
+          </span>
+          <p className="font-playfair text-2xl font-bold text-ink mb-2">Something went wrong</p>
+          <p className="text-ink-muted text-sm mb-7">We couldn&apos;t load your matches. Please try again.</p>
+          <ButtonLink href="/intake" variant="primary">Back to search</ButtonLink>
+        </div>
+      </div>
+    )
+  }
+
+  const INITIAL_SHOW = 8
+  const visible = showAll ? results : results.slice(0, INITIAL_SHOW)
+  const featured = isFiltered ? visible.slice(0, 3) : []
+  const standard = isFiltered ? visible.slice(3) : visible
+  const hasMore = !showAll && results.length > INITIAL_SHOW
+
+  function buildSalonHref(salonId: string | number): string {
+    const p = new URLSearchParams()
+    if (budget) p.set('budget', budget)
+    if (area) p.set('area', area)
+    if (style) p.set('style', style)
+    if (customNote) p.set('note', customNote)
+    const qs = p.toString()
+    return `/salon/${salonId}${qs ? '?' + qs : ''}`
+  }
+
+  const activeFilters = [
+    budget && TIER_LABEL[budget],
+    area,
+    date,
+    style && style.charAt(0).toUpperCase() + style.slice(1),
+  ].filter(Boolean) as string[]
 
   return (
-    <div className="min-h-screen bg-white pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div className="min-h-dvh bg-ivory pt-24 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-playfair text-3xl font-bold text-gray-900 mb-2">
-              {salons.length} Salon{salons.length !== 1 ? 's' : ''} Found
+            <p className="text-xs font-medium uppercase tracking-widest text-oxblood-700 mb-2">
+              {isFiltered ? 'Your curated edit' : 'The full directory'}
+            </p>
+            <h1 className="font-playfair text-3xl sm:text-4xl font-bold text-ink tabular-nums">
+              {results.length} {results.length === 1 ? 'salon' : 'salons'}
             </h1>
-            <div className="flex flex-wrap gap-2">
-              {searchParams.budget && (
-                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                  {TIER_LABEL[searchParams.budget] ?? searchParams.budget}
-                </span>
-              )}
-              {searchParams.area && (
-                <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-medium">
-                  📍 {searchParams.area}
-                </span>
-              )}
-              {searchParams.date && (
-                <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
-                  📅 {searchParams.date}
-                </span>
-              )}
-            </div>
+            {activeFilters.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {activeFilters.map((f) => (
+                  <span
+                    key={f}
+                    className="px-3 py-1 rounded-full bg-cream border border-line text-ink-soft text-xs font-medium"
+                  >
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-          <Link href="/intake" className="text-sm text-purple-600 hover:underline whitespace-nowrap mt-1">
-            ← Change filters
+          <Link
+            href="/intake"
+            className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-oxblood-700 hover:gap-2.5 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" strokeWidth={2} aria-hidden="true" />
+            Change filters
           </Link>
         </div>
 
-        {salons.length === 0 ? (
+        {/* Nudge banner */}
+        {!isFiltered && (
+          <div className="flex items-start gap-3 bg-oxblood-50/70 border border-oxblood-100 rounded-2xl px-5 py-4 mb-8">
+            <Sparkles className="w-5 h-5 text-oxblood-700 flex-shrink-0 mt-0.5" strokeWidth={1.75} aria-hidden="true" />
+            <p className="text-sm text-ink-soft">
+              Showing every verified salon in Delhi.{' '}
+              <Link href="/intake" className="text-oxblood-700 font-medium underline underline-offset-2">
+                Tell us your preferences
+              </Link>{' '}
+              for personalised AI matches.
+            </p>
+          </div>
+        )}
+
+        {results.length === 0 ? (
           <div className="text-center py-24">
-            <div className="text-6xl mb-4">🔍</div>
-            <h2 className="font-playfair text-2xl font-bold text-gray-800 mb-2">
-              No Salons Found
-            </h2>
-            <p className="text-gray-500 mb-8">Try adjusting your filters</p>
-            <Link
-              href="/intake"
-              className="px-6 py-3 bg-purple-600 text-white rounded-full text-sm font-medium hover:bg-purple-700 transition-colors"
-            >
-              Try Again
-            </Link>
+            <span className="inline-grid place-items-center w-16 h-16 rounded-2xl bg-oxblood-50 text-oxblood-700 mb-5">
+              <SearchX className="w-7 h-7" strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <h2 className="font-playfair text-2xl font-bold text-ink mb-2">No salons found</h2>
+            <p className="text-ink-muted mb-7">Try adjusting your filters to see more options.</p>
+            <ButtonLink href="/intake" variant="primary">Try again</ButtonLink>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {salons.map((salon) => (
-              <SalonCard key={salon.id} salon={salon} />
-            ))}
-          </div>
+          <>
+            {/* Featured AI picks — larger bento cards */}
+            {featured.length > 0 && (
+              <section className="mb-12">
+                <div className="flex items-center gap-2 mb-5">
+                  <Sparkles className="w-5 h-5 text-oxblood-700" strokeWidth={1.75} aria-hidden="true" />
+                  <h2 className="font-playfair text-xl font-bold text-ink">AI Top Picks for You</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+                  {featured.map((salon, i) => (
+                    <FeaturedCard key={salon.id} salon={salon} rank={i + 1} salonHref={buildSalonHref(salon.id)} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Standard results */}
+            {standard.length > 0 && (
+              <section>
+                {isFiltered && (
+                  <h2 className="font-playfair text-lg font-semibold text-ink-soft mb-5">More options</h2>
+                )}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                  {standard.map((salon, i) => (
+                    <StandardCard key={salon.id} salon={salon} rank={i} salonHref={buildSalonHref(salon.id)} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {hasMore && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="inline-flex items-center gap-2 min-h-[48px] px-7 rounded-full border border-line bg-cream text-oxblood-700 font-medium hover:border-oxblood-300 hover:bg-oxblood-50 transition-all shadow-soft [touch-action:manipulation]"
+                >
+                  Show {results.length - INITIAL_SHOW} more
+                  <ArrowRight className="w-4 h-4" strokeWidth={2} aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
   )
 }
 
-function SalonCard({ salon }: { salon: Salon }) {
-  const tierBadge = TIER_BADGE[salon.price_tier ?? ''] ?? 'bg-gray-100 text-gray-600'
-  const tierLabel = TIER_LABEL[salon.price_tier ?? ''] ?? salon.price_tier ?? ''
-
+export default function ResultsPage() {
   return (
-    <article className="bg-white border border-purple-100 rounded-2xl shadow-sm hover:shadow-md hover:border-purple-200 transition-all duration-200 overflow-hidden flex flex-col">
-      {/* Photo / placeholder */}
-      <div className="h-44 bg-gradient-to-br from-purple-100 via-pink-50 to-amber-50 flex items-center justify-center relative overflow-hidden">
-        {salon.photos?.[0] ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={salon.photos[0]}
-            alt={salon.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span className="text-5xl opacity-50">💒</span>
-        )}
-        <div className="absolute top-3 right-3">
-          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${tierBadge}`}>
-            {tierLabel}
-          </span>
-        </div>
-      </div>
-
-      <div className="p-5 flex flex-col flex-1">
-        <h2 className="font-semibold text-gray-900 text-sm leading-snug mb-1 line-clamp-2">
-          {salon.name}
-        </h2>
-        <p className="text-purple-600 text-xs font-medium mb-3">
-          📍 {salon.area ?? 'Delhi'}
-        </p>
-
-        <div className="flex items-center gap-1.5 mb-4">
-          <span className="text-amber-400 text-sm">⭐</span>
-          <span className="text-sm font-bold text-gray-800">
-            {salon.rating?.toFixed(1) ?? '—'}
-          </span>
-          <span className="text-gray-400 text-xs">
-            ({salon.review_count?.toLocaleString() ?? 0} reviews)
-          </span>
-        </div>
-
-        <div className="mt-auto">
-          <Link
-            href={`/salon/${salon.id}`}
-            className="block w-full text-center py-2.5 border-2 border-purple-200 text-purple-600 rounded-xl text-sm font-semibold hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all duration-150"
-          >
-            View Details →
-          </Link>
-        </div>
-      </div>
-    </article>
+    <Suspense fallback={<LoadingState />}>
+      <ResultsContent />
+    </Suspense>
   )
 }

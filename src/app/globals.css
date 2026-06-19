@@ -7,15 +7,55 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply text-gray-900 antialiased;
+    @apply bg-ivory text-ink antialiased;
+    font-feature-settings: 'kern', 'liga', 'calt';
+  }
+  /* Consistent, visible focus across the app */
+  :focus-visible {
+    outline: none;
+    @apply ring-2 ring-oxblood-600 ring-offset-2 ring-offset-ivory rounded-sm;
+  }
+  ::selection {
+    @apply bg-gold-200 text-ink;
   }
 }
 
 @layer utilities {
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Editorial divider — thin gold rule */
+  .rule-gold {
+    @apply h-px w-12 bg-gold-500;
+  }
+}
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
