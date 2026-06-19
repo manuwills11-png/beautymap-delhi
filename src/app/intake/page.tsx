@@ -57,7 +57,7 @@ export default function IntakePage() {
     if (weddingDate) params.set('date', weddingDate)
     if (style) params.set('style', style)
     if (customNote.trim()) params.set('customNote', customNote.trim())
-    router.push(`/results?${params.toString()}`)
+    router.push(`/matching?${params.toString()}`)
   }
 
   return (

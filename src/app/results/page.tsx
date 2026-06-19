@@ -20,6 +20,7 @@ import type { Salon } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
 import { ButtonLink } from '@/components/ui/Button'
 import CompareBar from '@/components/CompareBar'
+import { loadResults } from '@/lib/resultsCache'
 
 type ScoredSalon = Salon & { score: number; explanation?: string }
 
@@ -252,6 +253,17 @@ function ResultsContent() {
   useEffect(() => {
     setLoading(true)
     setShowAll(false)
+
+    // Fast path: consume the payload computed during the /matching sequence
+    // so we don't re-run the API. Direct visits fall through to a fetch.
+    const cached = loadResults(searchParams.toString())
+    if (cached) {
+      setResults(cached.results as ScoredSalon[])
+      setIsFiltered(cached.filtered)
+      setLoading(false)
+      return
+    }
+
     fetch('/api/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -267,7 +279,7 @@ function ResultsContent() {
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [budget, area, style, customNote])
+  }, [budget, area, style, customNote, searchParams])
 
   if (loading) return <LoadingState />
 
