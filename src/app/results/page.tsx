@@ -90,11 +90,13 @@ function FeaturedCard({
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/30 to-transparent" />
-        <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-oxblood-700 text-cream text-xs font-medium shadow-soft">
+        {/* Image-area navigation link — behind interactive badges */}
+        <Link href={salonHref} className="absolute inset-0 z-[1]" aria-hidden="true" tabIndex={-1} />
+        <span className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-oxblood-700 text-cream text-xs font-medium shadow-soft pointer-events-none">
           <Sparkles className="w-3.5 h-3.5" strokeWidth={2} aria-hidden="true" />
           AI Pick · #{rank}
         </span>
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 z-10 pointer-events-none">
           <TierBadge tier={salon.price_tier} className="bg-ivory/90 backdrop-blur" />
         </div>
       </div>
@@ -174,7 +176,7 @@ function StandardCard({
       {/* Ghost link for full-card navigation — sits below interactive elements */}
       <Link
         href={salonHref}
-        className="absolute inset-0 z-0 rounded-2xl focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-inset"
+        className="absolute inset-0 z-[1] rounded-2xl focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-inset"
         aria-label={`View ${salon.name} details`}
       />
 

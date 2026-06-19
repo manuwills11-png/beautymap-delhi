@@ -241,15 +241,17 @@ function NearbyCard({
   return (
     <article className="flex gap-4 bg-cream border border-line rounded-2xl shadow-soft hover:shadow-card hover:border-oxblood-200 transition-all duration-200 overflow-hidden p-3.5">
       <div className="flex-shrink-0 relative">
-        <div className="w-20 h-20 rounded-xl overflow-hidden bg-rose-100 grid place-items-center">
+        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-rose-100 grid place-items-center">
           {salon.photos?.[0] ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={salon.photos[0]} alt={`${salon.name}, ${salon.area ?? 'Delhi'}`} className="w-full h-full object-cover" />
           ) : (
             <ImageOff className="w-6 h-6 text-rose-400" strokeWidth={1.5} aria-hidden="true" />
           )}
+          {/* Image tap → navigate to salon detail */}
+          <Link href={`/salon/${salon.id}`} className="absolute inset-0 z-[1]" aria-hidden="true" tabIndex={-1} />
         </div>
-        <span className="absolute -top-1.5 -left-1.5 grid place-items-center w-6 h-6 rounded-full bg-oxblood-700 text-cream text-xs font-bold shadow-soft tabular-nums">
+        <span className="absolute -top-1.5 -left-1.5 grid place-items-center w-6 h-6 rounded-full bg-oxblood-700 text-cream text-xs font-bold shadow-soft tabular-nums pointer-events-none">
           {rank}
         </span>
       </div>
