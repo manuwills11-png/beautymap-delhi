@@ -252,27 +252,6 @@ function NearbyCard({
         <span className="absolute -top-1.5 -left-1.5 grid place-items-center w-6 h-6 rounded-full bg-oxblood-700 text-cream text-xs font-bold shadow-soft tabular-nums">
           {rank}
         </span>
-        {/* Compare toggle */}
-        <button
-          type="button"
-          onClick={() => { if (!isDisabled) onToggleCompare(id) }}
-          disabled={isDisabled}
-          aria-pressed={isSelected}
-          aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
-          className={`absolute -bottom-1.5 -right-1.5 z-10 grid place-items-center w-6 h-6 rounded-full shadow-soft transition-all [touch-action:manipulation] ${
-            isSelected
-              ? 'bg-oxblood-700 text-cream'
-              : isDisabled
-              ? 'bg-cream text-ink-muted/30 border border-line cursor-not-allowed'
-              : 'bg-cream text-ink-soft border border-line hover:border-oxblood-400 hover:text-oxblood-700'
-          }`}
-        >
-          {isSelected ? (
-            <Check className="w-3 h-3" strokeWidth={3} aria-hidden="true" />
-          ) : (
-            <Plus className="w-3 h-3" strokeWidth={2.5} aria-hidden="true" />
-          )}
-        </button>
       </div>
 
       <div className="flex-1 min-w-0">
@@ -310,6 +289,27 @@ function NearbyCard({
           Details
           <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} aria-hidden="true" />
         </Link>
+        <button
+          type="button"
+          onClick={() => { if (!isDisabled) onToggleCompare(id) }}
+          disabled={isDisabled}
+          aria-pressed={isSelected}
+          aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
+          className={`inline-flex items-center justify-center gap-1 min-h-[36px] px-2.5 rounded-xl text-xs font-medium active:scale-95 transition-all whitespace-nowrap [touch-action:manipulation] ${
+            isSelected
+              ? 'bg-oxblood-700 text-cream'
+              : isDisabled
+              ? 'border border-line text-ink-muted/30 cursor-not-allowed'
+              : 'border border-line text-ink-soft hover:border-oxblood-300 hover:text-oxblood-700'
+          }`}
+        >
+          {isSelected ? (
+            <Check className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+          ) : (
+            <Plus className="w-3.5 h-3.5" strokeWidth={2} aria-hidden="true" />
+          )}
+          {isSelected ? 'Added' : 'Compare'}
+        </button>
       </div>
     </article>
   )

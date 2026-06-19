@@ -14,8 +14,6 @@ import {
   Quote,
   Plus,
   Check,
-  Square,
-  CheckSquare,
   LayoutGrid,
 } from 'lucide-react'
 import type { Salon } from '@/lib/supabase'
@@ -125,12 +123,12 @@ function FeaturedCard({
             disabled={isDisabled}
             aria-pressed={isSelected}
             aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
-            className={`inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-full border text-xs font-medium transition-all [touch-action:manipulation] ${
+            className={`inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-full border text-xs font-medium transition-all active:scale-95 [touch-action:manipulation] ${
               isSelected
                 ? 'border-oxblood-500 bg-oxblood-50 text-oxblood-700'
                 : isDisabled
                 ? 'border-line text-ink-muted/40 cursor-not-allowed'
-                : 'border-line text-ink-soft hover:border-oxblood-300 hover:text-oxblood-700'
+                : 'border-oxblood-200 text-oxblood-600 hover:border-oxblood-400 hover:bg-oxblood-50'
             }`}
           >
             {isSelected ? (
@@ -185,28 +183,28 @@ function StandardCard({
           salon={salon}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {/* Compare toggle overlay — sized for clear visibility */}
+        {/* Compare toggle — top-right, 44px tap target, Plus/Check */}
         <button
           type="button"
           onClick={() => { if (!isDisabled) onToggleCompare(id) }}
           disabled={isDisabled}
           aria-pressed={isSelected}
           aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
-          className={`absolute top-2 left-2 z-10 grid place-items-center w-9 h-9 rounded-xl shadow-soft transition-all [touch-action:manipulation] ${
+          className={`absolute top-2 right-2 z-10 grid place-items-center w-11 h-11 rounded-2xl shadow-soft active:scale-90 transition-all duration-150 [touch-action:manipulation] ${
             isSelected
               ? 'bg-oxblood-700 text-cream'
               : isDisabled
-              ? 'bg-cream/70 text-ink-muted/30 cursor-not-allowed border border-line'
-              : 'bg-cream/95 text-oxblood-400 border border-line/60 hover:bg-cream hover:text-oxblood-700 hover:border-oxblood-300'
+              ? 'bg-cream/70 text-ink-muted/30 cursor-not-allowed border border-white/30'
+              : 'bg-cream/90 text-oxblood-600 border border-white/50 hover:bg-cream hover:text-oxblood-700'
           }`}
         >
           {isSelected ? (
-            <CheckSquare className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
+            <Check className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
           ) : (
-            <Square className="w-5 h-5" strokeWidth={1.75} aria-hidden="true" />
+            <Plus className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
           )}
         </button>
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute bottom-2 left-2 z-10">
           <TierBadge tier={salon.price_tier} className="bg-ivory/90 backdrop-blur" />
         </div>
       </div>
@@ -343,13 +341,18 @@ function ResultsContent() {
           </Link>
         </div>
 
-        {/* Compare affordance — always visible once there are results */}
+        {/* Compare feature banner — permanent, non-dismissible */}
         {results.length > 0 && (
-          <div className="flex items-center gap-2 mb-5 -mt-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cream border border-line shadow-soft text-xs font-medium text-ink-soft">
-              <LayoutGrid className="w-3 h-3 text-oxblood-600" strokeWidth={2} aria-hidden="true" />
-              Tap the checkbox on any card to compare salons
+          <div className="flex items-center gap-3 bg-oxblood-50/60 border border-oxblood-100 rounded-2xl px-5 py-3.5 mb-7">
+            <span className="grid place-items-center w-9 h-9 rounded-xl bg-oxblood-100 flex-shrink-0">
+              <Plus className="w-4 h-4 text-oxblood-700" strokeWidth={2.5} aria-hidden="true" />
             </span>
+            <p className="text-sm text-ink-soft">
+              <strong className="font-semibold text-ink">Compare salons side by side</strong>
+              {' — tap the '}
+              <strong className="font-semibold text-oxblood-700">+</strong>
+              {' on any card to add it, then compare up to 3.'}
+            </p>
           </div>
         )}
 
