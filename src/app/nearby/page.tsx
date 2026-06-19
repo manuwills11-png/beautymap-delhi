@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-import { MapPin, Navigation, LocateFixed, MapPinned, ImageOff, ArrowRight } from 'lucide-react'
+import { MapPin, Navigation, LocateFixed, MapPinned, ImageOff, ArrowRight, Plus, Check } from 'lucide-react'
+import CompareBar from '@/components/CompareBar'
 import { haversineKm } from '@/lib/distance'
 import type { Salon } from '@/lib/supabase'
 import { StarRating } from '@/components/ui/Tier'
@@ -48,6 +49,15 @@ export default function NearbyPage() {
   const [allSalons, setAllSalons] = useState<Salon[]>([])
   const [nearby, setNearby] = useState<NearbyRecord[]>([])
   const [loadingSalons, setLoadingSalons] = useState(true)
+  const [compareIds, setCompareIds] = useState<string[]>([])
+
+  function toggleCompare(id: string) {
+    setCompareIds(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : prev.length < 3 ? [...prev, id] : prev
+    )
+  }
 
   useEffect(() => {
     const supabase = createClient(
@@ -112,7 +122,7 @@ export default function NearbyPage() {
   const hasLocation = effectiveLat !== null && effectiveLng !== null
 
   return (
-    <div className="min-h-dvh bg-ivory pt-24 pb-20">
+    <div className={`min-h-dvh bg-ivory pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="mb-8">
           <p className="text-xs font-medium uppercase tracking-widest text-oxblood-700 mb-2">Discover</p>
@@ -195,11 +205,15 @@ export default function NearbyPage() {
                 rank={i + 1}
                 userLat={effectiveLat!}
                 userLng={effectiveLng!}
+                compareIds={compareIds}
+                onToggleCompare={toggleCompare}
               />
             ))}
           </div>
         )}
       </div>
+
+      <CompareBar selectedIds={compareIds} onClear={() => setCompareIds([])} />
     </div>
   )
 }
@@ -209,12 +223,19 @@ function NearbyCard({
   rank,
   userLat,
   userLng,
+  compareIds,
+  onToggleCompare,
 }: {
   salon: NearbyRecord
   rank: number
   userLat: number
   userLng: number
+  compareIds: string[]
+  onToggleCompare: (id: string) => void
 }) {
+  const id = String(salon.id)
+  const isSelected = compareIds.includes(id)
+  const isDisabled = compareIds.length >= 3 && !isSelected
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${salon.latitude},${salon.longitude}`
 
   return (
@@ -231,6 +252,27 @@ function NearbyCard({
         <span className="absolute -top-1.5 -left-1.5 grid place-items-center w-6 h-6 rounded-full bg-oxblood-700 text-cream text-xs font-bold shadow-soft tabular-nums">
           {rank}
         </span>
+        {/* Compare toggle */}
+        <button
+          type="button"
+          onClick={() => { if (!isDisabled) onToggleCompare(id) }}
+          disabled={isDisabled}
+          aria-pressed={isSelected}
+          aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
+          className={`absolute -bottom-1.5 -right-1.5 z-10 grid place-items-center w-6 h-6 rounded-full shadow-soft transition-all [touch-action:manipulation] ${
+            isSelected
+              ? 'bg-oxblood-700 text-cream'
+              : isDisabled
+              ? 'bg-cream text-ink-muted/30 border border-line cursor-not-allowed'
+              : 'bg-cream text-ink-soft border border-line hover:border-oxblood-400 hover:text-oxblood-700'
+          }`}
+        >
+          {isSelected ? (
+            <Check className="w-3 h-3" strokeWidth={3} aria-hidden="true" />
+          ) : (
+            <Plus className="w-3 h-3" strokeWidth={2.5} aria-hidden="true" />
+          )}
+        </button>
       </div>
 
       <div className="flex-1 min-w-0">

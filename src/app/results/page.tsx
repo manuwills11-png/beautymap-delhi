@@ -12,10 +12,13 @@ import {
   ImageOff,
   MapPin,
   Quote,
+  Plus,
+  Check,
 } from 'lucide-react'
 import type { Salon } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
 import { ButtonLink } from '@/components/ui/Button'
+import CompareBar from '@/components/CompareBar'
 
 type ScoredSalon = Salon & { score: number; explanation?: string }
 
@@ -58,7 +61,23 @@ function Photo({ salon, className }: { salon: ScoredSalon; className?: string })
 }
 
 /* Large featured card — for AI top picks */
-function FeaturedCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: number; salonHref: string }) {
+function FeaturedCard({
+  salon,
+  rank,
+  salonHref,
+  compareIds,
+  onToggleCompare,
+}: {
+  salon: ScoredSalon
+  rank: number
+  salonHref: string
+  compareIds: string[]
+  onToggleCompare: (id: string) => void
+}) {
+  const id = String(salon.id)
+  const isSelected = compareIds.includes(id)
+  const isDisabled = compareIds.length >= 3 && !isSelected
+
   return (
     <article
       className="group relative flex flex-col bg-cream rounded-3xl border border-line overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 animate-fade-up"
@@ -96,8 +115,29 @@ function FeaturedCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: nu
           </div>
         )}
 
-        <div className="mt-auto pt-5">
-          <ButtonLink href={salonHref} variant="secondary" size="sm" className="w-full">
+        <div className="mt-auto pt-5 flex gap-2">
+          <button
+            type="button"
+            onClick={() => { if (!isDisabled) onToggleCompare(id) }}
+            disabled={isDisabled}
+            aria-pressed={isSelected}
+            aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
+            className={`inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-full border text-xs font-medium transition-all [touch-action:manipulation] ${
+              isSelected
+                ? 'border-oxblood-500 bg-oxblood-50 text-oxblood-700'
+                : isDisabled
+                ? 'border-line text-ink-muted/40 cursor-not-allowed'
+                : 'border-line text-ink-soft hover:border-oxblood-300 hover:text-oxblood-700'
+            }`}
+          >
+            {isSelected ? (
+              <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden="true" />
+            ) : (
+              <Plus className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+            )}
+            {isSelected ? 'Added' : 'Compare'}
+          </button>
+          <ButtonLink href={salonHref} variant="secondary" size="sm" className="flex-1">
             View details
             <ArrowRight className="w-4 h-4" strokeWidth={2} aria-hidden="true" />
           </ButtonLink>
@@ -108,23 +148,66 @@ function FeaturedCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: nu
 }
 
 /* Compact card — standard results */
-function StandardCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: number; salonHref: string }) {
+function StandardCard({
+  salon,
+  rank,
+  salonHref,
+  compareIds,
+  onToggleCompare,
+}: {
+  salon: ScoredSalon
+  rank: number
+  salonHref: string
+  compareIds: string[]
+  onToggleCompare: (id: string) => void
+}) {
+  const id = String(salon.id)
+  const isSelected = compareIds.includes(id)
+  const isDisabled = compareIds.length >= 3 && !isSelected
+
   return (
-    <Link
-      href={salonHref}
-      className="group flex flex-col bg-cream rounded-2xl border border-line overflow-hidden shadow-soft hover:shadow-card hover:border-oxblood-200 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-offset-2 focus-visible:ring-offset-ivory animate-fade-up"
+    <article
+      className="group relative flex flex-col bg-cream rounded-2xl border border-line overflow-hidden shadow-soft hover:shadow-card hover:border-oxblood-200 transition-all duration-300 animate-fade-up"
       style={{ animationDelay: `${rank * 40}ms` }}
     >
+      {/* Ghost link for full-card navigation — sits below interactive elements */}
+      <Link
+        href={salonHref}
+        className="absolute inset-0 z-0 rounded-2xl focus-visible:ring-2 focus-visible:ring-oxblood-600 focus-visible:ring-inset"
+        aria-label={`View ${salon.name} details`}
+      />
+
       <div className="relative aspect-[4/3] overflow-hidden">
         <Photo
           salon={salon}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute top-3 right-3">
+        {/* Compare toggle overlay */}
+        <button
+          type="button"
+          onClick={() => { if (!isDisabled) onToggleCompare(id) }}
+          disabled={isDisabled}
+          aria-pressed={isSelected}
+          aria-label={isSelected ? `Remove ${salon.name} from comparison` : `Add ${salon.name} to comparison`}
+          className={`absolute top-2 left-2 z-10 grid place-items-center w-7 h-7 rounded-lg shadow-soft transition-all [touch-action:manipulation] ${
+            isSelected
+              ? 'bg-oxblood-700 text-cream'
+              : isDisabled
+              ? 'bg-cream/50 text-ink-muted/40 cursor-not-allowed'
+              : 'bg-cream/90 text-ink-soft hover:bg-cream hover:text-oxblood-700'
+          }`}
+        >
+          {isSelected ? (
+            <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden="true" />
+          ) : (
+            <Plus className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+          )}
+        </button>
+        <div className="absolute top-3 right-3 z-10">
           <TierBadge tier={salon.price_tier} className="bg-ivory/90 backdrop-blur" />
         </div>
       </div>
-      <div className="flex flex-col flex-1 p-4">
+      <div className="relative z-0 flex flex-col flex-1 p-4 pointer-events-none">
         <h3 className="font-medium text-ink text-sm leading-snug line-clamp-2 group-hover:text-oxblood-700 transition-colors">
           {salon.name}
         </h3>
@@ -136,7 +219,7 @@ function StandardCard({ salon, rank, salonHref }: { salon: ScoredSalon; rank: nu
           <StarRating rating={salon.rating} reviewCount={salon.review_count} className="text-sm" />
         </div>
       </div>
-    </Link>
+    </article>
   )
 }
 
@@ -153,6 +236,15 @@ function ResultsContent() {
   const [showAll, setShowAll] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [compareIds, setCompareIds] = useState<string[]>([])
+
+  function toggleCompare(id: string) {
+    setCompareIds(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : prev.length < 3 ? [...prev, id] : prev
+    )
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -215,7 +307,7 @@ function ResultsContent() {
   ].filter(Boolean) as string[]
 
   return (
-    <div className="min-h-dvh bg-ivory pt-24 pb-20">
+    <div className={`min-h-dvh bg-ivory pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
@@ -282,7 +374,7 @@ function ResultsContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
                   {featured.map((salon, i) => (
-                    <FeaturedCard key={salon.id} salon={salon} rank={i + 1} salonHref={buildSalonHref(salon.id)} />
+                    <FeaturedCard key={salon.id} salon={salon} rank={i + 1} salonHref={buildSalonHref(salon.id)} compareIds={compareIds} onToggleCompare={toggleCompare} />
                   ))}
                 </div>
               </section>
@@ -296,7 +388,7 @@ function ResultsContent() {
                 )}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                   {standard.map((salon, i) => (
-                    <StandardCard key={salon.id} salon={salon} rank={i} salonHref={buildSalonHref(salon.id)} />
+                    <StandardCard key={salon.id} salon={salon} rank={i} salonHref={buildSalonHref(salon.id)} compareIds={compareIds} onToggleCompare={toggleCompare} />
                   ))}
                 </div>
               </section>
@@ -316,6 +408,8 @@ function ResultsContent() {
           </>
         )}
       </div>
+
+      <CompareBar selectedIds={compareIds} onClear={() => setCompareIds([])} />
     </div>
   )
 }
