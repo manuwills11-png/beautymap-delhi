@@ -80,8 +80,10 @@ const config: Config = {
           '100%': { transform: 'translateX(100%)' },
         },
         'page-enter': {
-          '0%': { opacity: '0', transform: 'translateY(6px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+          // opacity-only — a transform here would change the containing block
+          // for position:fixed descendants (overlays, CompareBar) and break them
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
       },
       animation: {
