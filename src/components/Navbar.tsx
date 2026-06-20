@@ -24,10 +24,11 @@ export default function Navbar() {
           <Image
             src="/logo.png"
             alt=""
-            width={44}
-            height={44}
+            width={390}
+            height={511}
             priority
-            className="w-10 h-10 sm:w-11 sm:h-11 object-contain flex-shrink-0"
+            style={{ width: 'auto', height: '40px' }}
+            className="flex-shrink-0 object-contain"
           />
           <span className="flex flex-col leading-none">
             <span className="font-playfair text-xl font-bold text-ink tracking-tight">BeautyMap</span>
