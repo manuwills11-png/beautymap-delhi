@@ -21,6 +21,7 @@ import { TierBadge, StarRating } from '@/components/ui/Tier'
 import { ButtonLink } from '@/components/ui/Button'
 import CompareBar from '@/components/CompareBar'
 import { loadResults } from '@/lib/resultsCache'
+import { MehendiBloom, MehendiFlourish } from '@/components/ui/Mehendi'
 
 type ScoredSalon = Salon & { score: number; explanation?: string }
 
@@ -322,7 +323,9 @@ function ResultsContent() {
   ].filter(Boolean) as string[]
 
   return (
-    <div className={`min-h-dvh bg-ivory pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
+    <div className={`relative isolate overflow-hidden min-h-dvh bg-ivory pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
+      {/* mehendi signature — faint henna mandala behind the header */}
+      <MehendiBloom className="pointer-events-none absolute -top-10 -right-24 w-[26rem] h-[26rem] text-gold-500/[0.08] -z-10" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
@@ -413,6 +416,11 @@ function ResultsContent() {
             {/* Standard results */}
             {standard.length > 0 && (
               <section>
+                {isFiltered && featured.length > 0 && (
+                  <div className="flex justify-center mb-8">
+                    <MehendiFlourish className="w-48 sm:w-56 text-gold-500/40" />
+                  </div>
+                )}
                 {isFiltered && (
                   <h2 className="font-playfair text-lg font-semibold text-ink-soft mb-5">More options</h2>
                 )}

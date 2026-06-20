@@ -15,6 +15,7 @@ import type { Salon } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
 import { TierBadge, StarRating } from '@/components/ui/Tier'
 import { Reveal } from '@/components/ui/Reveal'
+import { MehendiCorner, MehendiFlourish } from '@/components/ui/Mehendi'
 import AvailabilityForm from '@/components/AvailabilityForm'
 import { cleanIndianPhone } from '@/lib/phone'
 import QuestionsSection from '@/components/QuestionsSection'
@@ -81,6 +82,9 @@ export default async function SalonDetailPage({ params }: { params: { id: string
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-ink/30" />
 
+        {/* mehendi signature — corner henna spray, top-right */}
+        <MehendiCorner className="pointer-events-none absolute top-4 right-4 w-28 h-28 sm:w-36 sm:h-36 text-gold-300/35 -scale-x-100" />
+
         {/* Back link */}
         <div className="absolute top-20 inset-x-0">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -118,8 +122,13 @@ export default async function SalonDetailPage({ params }: { params: { id: string
         </div>
       </header>
 
+      {/* mehendi flourish — bridges the hero into the editorial body */}
+      <div className="flex justify-center mt-8">
+        <MehendiFlourish className="w-44 sm:w-52 text-gold-500/40" />
+      </div>
+
       {/* ── Body ── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-10 grid lg:grid-cols-3 gap-8 lg:gap-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 grid lg:grid-cols-3 gap-8 lg:gap-10">
         {/* Left column — editorial content */}
         <div className="lg:col-span-2 space-y-10">
           {salon.description && (

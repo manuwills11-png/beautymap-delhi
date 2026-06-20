@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { Sparkles } from 'lucide-react'
 import { saveResults } from '@/lib/resultsCache'
+import { MehendiBloom } from '@/components/ui/Mehendi'
 
 /* ── Timing (the deliberate, theatrical pace) ── */
 const STAGE1_MS = 1000 // "Analysing your vision"
@@ -173,6 +174,8 @@ function MatchingExperience() {
       {/* ambient washes — match the editorial hero */}
       <div className="pointer-events-none absolute -top-24 -right-28 w-[30rem] h-[30rem] rounded-full bg-rose-600/20 blur-3xl" aria-hidden="true" />
       <div className="pointer-events-none absolute -bottom-28 -left-24 w-[26rem] h-[26rem] rounded-full bg-gold-400/15 blur-3xl" aria-hidden="true" />
+      {/* mehendi signature — centred henna mandala */}
+      <MehendiBloom className="pointer-events-none absolute left-1/2 top-1/2 w-[42rem] h-[42rem] -translate-x-1/2 -translate-y-1/2 text-gold-400/[0.07]" />
 
       <div className="relative flex flex-col items-center">
         {/* Eyebrow */}
