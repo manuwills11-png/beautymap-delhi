@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { MapPin } from 'lucide-react'
 
@@ -21,14 +20,12 @@ export default function Navbar() {
           className="group flex items-center gap-2.5 rounded-lg -ml-1 pl-1 pr-2 py-1"
           aria-label="BeautyMap home"
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/logo.png"
             alt=""
-            width={390}
-            height={511}
-            priority
-            style={{ width: 'auto', height: '40px' }}
-            className="flex-shrink-0 object-contain"
+            height={40}
+            className="h-10 w-auto object-contain flex-shrink-0"
           />
           <span className="flex flex-col leading-none">
             <span className="font-playfair text-xl font-bold text-ink tracking-tight">BeautyMap</span>
