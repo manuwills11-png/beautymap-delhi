@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { MapPin, Sparkles } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 
 const NAV_LINKS = [
   { href: '/nearby', label: 'Nearby', Icon: MapPin },
@@ -20,9 +21,14 @@ export default function Navbar() {
           className="group flex items-center gap-2.5 rounded-lg -ml-1 pl-1 pr-2 py-1"
           aria-label="BeautyMap home"
         >
-          <span className="grid place-items-center w-9 h-9 rounded-lg bg-oxblood-700 text-gold-300 shadow-soft transition-colors group-hover:bg-oxblood-800">
-            <Sparkles className="w-[18px] h-[18px]" strokeWidth={2} aria-hidden="true" />
-          </span>
+          <Image
+            src="/logo.png"
+            alt=""
+            width={44}
+            height={44}
+            priority
+            className="w-10 h-10 sm:w-11 sm:h-11 object-contain flex-shrink-0"
+          />
           <span className="flex flex-col leading-none">
             <span className="font-playfair text-xl font-bold text-ink tracking-tight">BeautyMap</span>
             <span className="text-[10px] uppercase tracking-widest text-ink-muted mt-0.5">Delhi Bridal</span>
