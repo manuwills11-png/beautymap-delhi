@@ -180,9 +180,13 @@ export default async function SalonDetailPage({ params }: { params: { id: string
             </Reveal>
           )}
 
-          {(salon.reviews ?? []).length > 0 && (
+          {((salon.reviews ?? []).length > 0 || salon.rating != null) && (
             <Reveal delay={80}>
-              <ReviewsSection reviews={salon.reviews!} />
+              <ReviewsSection
+                reviews={salon.reviews ?? []}
+                aggregateRating={salon.rating}
+                aggregateCount={salon.review_count}
+              />
             </Reveal>
           )}
 
