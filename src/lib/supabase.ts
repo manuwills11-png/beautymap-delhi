@@ -5,6 +5,13 @@ export const supabase = createClient(
   (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '').replace(/^﻿/, '')
 )
 
+export type ReviewItem = {
+  author: string
+  rating: number
+  text: string
+  date: string
+}
+
 export type Salon = {
   id: string
   name: string
@@ -23,5 +30,6 @@ export type Salon = {
   bridal_packages: Record<string, unknown> | null
   shop_categories: string | null
   suggested_questions: string[] | null
+  reviews?: ReviewItem[] | null
   created_at: string
 }

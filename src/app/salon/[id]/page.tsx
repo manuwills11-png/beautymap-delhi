@@ -19,6 +19,7 @@ import { MehendiCorner, MehendiFlourish } from '@/components/ui/Mehendi'
 import AvailabilityForm from '@/components/AvailabilityForm'
 import { cleanIndianPhone } from '@/lib/phone'
 import QuestionsSection from '@/components/QuestionsSection'
+import ReviewsSection from '@/components/ReviewsSection'
 
 // Revalidate static pages every hour via ISR
 export const revalidate = 3600
@@ -31,7 +32,7 @@ export async function generateStaticParams() {
 
 // Only select fields actually rendered on this page
 const SALON_SELECT =
-  'id, name, area, address, latitude, longitude, phone, website, rating, review_count, price_tier, specialities, photos, description'
+  'id, name, area, address, latitude, longitude, phone, website, rating, review_count, price_tier, specialities, photos, description, reviews'
 
 function getSalonClient() {
   return createClient(
@@ -176,6 +177,12 @@ export default async function SalonDetailPage({ params }: { params: { id: string
                   ))}
                 </div>
               </section>
+            </Reveal>
+          )}
+
+          {(salon.reviews ?? []).length > 0 && (
+            <Reveal delay={80}>
+              <ReviewsSection reviews={salon.reviews!} />
             </Reveal>
           )}
 
