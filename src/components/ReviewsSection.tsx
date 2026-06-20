@@ -62,7 +62,7 @@ export default function ReviewsSection({ reviews }: { reviews: ReviewItem[] }) {
                   <span className="text-ink-muted text-xs flex-shrink-0">{r.date}</span>
                 </div>
                 <StarRow rating={r.rating} />
-                <p className="mt-2 text-ink-soft text-sm leading-relaxed">{r.text}</p>
+                {r.text && <p className="mt-2 text-ink-soft text-sm leading-relaxed">{r.text}</p>}
               </div>
             </div>
           </article>
