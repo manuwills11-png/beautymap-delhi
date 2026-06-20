@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Wallet,
   Gem,
@@ -40,6 +40,20 @@ const STYLES: { value: string; Icon: LucideIcon; label: string }[] = [
   { value: 'fusion', Icon: Layers, label: 'Fusion' },
 ]
 
+// Typewriter placeholder examples for the vision field
+const VISION_PREFIX = 'e.g. '
+const VISION_PHRASES = [
+  'traditional but not too heavy…',
+  'my mom wants red and gold…',
+  'really care about good hair styling…',
+  'open to fusion looks too…',
+]
+const VISION_STATIC = VISION_PREFIX + VISION_PHRASES[0]
+const TYPE_MS = 50 // per character while typing
+const DELETE_MS = 25 // per character while deleting
+const HOLD_MS = 1500 // pause once a phrase finishes
+const BETWEEN_MS = 400 // pause between phrases / before first
+
 export default function IntakePage() {
   const router = useRouter()
   const [budget, setBudget] = useState('')
@@ -48,6 +62,54 @@ export default function IntakePage() {
   const [style, setStyle] = useState('')
   const [customNote, setCustomNote] = useState('')
   const [visionOpen, setVisionOpen] = useState(false)
+
+  // Typewriter placeholder cycling — stops permanently once engaged.
+  // Starts on the full first phrase so SSR/first paint match (no hydration jump).
+  const [visionPlaceholder, setVisionPlaceholder] = useState(VISION_STATIC)
+  const [visionEngaged, setVisionEngaged] = useState(false)
+
+  useEffect(() => {
+    if (visionEngaged) {
+      setVisionPlaceholder(VISION_STATIC)
+      return
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setVisionPlaceholder(VISION_STATIC)
+      return
+    }
+
+    let phraseIdx = 0
+    let charIdx = 0
+    let deleting = false
+    let timer: ReturnType<typeof setTimeout>
+
+    const tick = () => {
+      const phrase = VISION_PHRASES[phraseIdx]
+      if (!deleting) {
+        charIdx++
+        setVisionPlaceholder(VISION_PREFIX + phrase.slice(0, charIdx))
+        if (charIdx === phrase.length) {
+          deleting = true
+          timer = setTimeout(tick, HOLD_MS)
+          return
+        }
+        timer = setTimeout(tick, TYPE_MS)
+      } else {
+        charIdx--
+        setVisionPlaceholder(VISION_PREFIX + phrase.slice(0, charIdx))
+        if (charIdx === 0) {
+          deleting = false
+          phraseIdx = (phraseIdx + 1) % VISION_PHRASES.length
+          timer = setTimeout(tick, BETWEEN_MS)
+          return
+        }
+        timer = setTimeout(tick, DELETE_MS)
+      }
+    }
+
+    timer = setTimeout(tick, BETWEEN_MS)
+    return () => clearTimeout(timer)
+  }, [visionEngaged])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -228,8 +290,12 @@ export default function IntakePage() {
                     id="vision"
                     rows={3}
                     value={customNote}
-                    onChange={(e) => setCustomNote(e.target.value)}
-                    placeholder="e.g. I want something traditional but not too heavy, my mom wants red and gold, and good hair styling matters most to me…"
+                    onFocus={() => setVisionEngaged(true)}
+                    onChange={(e) => {
+                      setVisionEngaged(true)
+                      setCustomNote(e.target.value)
+                    }}
+                    placeholder={visionPlaceholder}
                     className="w-full px-4 py-3 rounded-xl border border-line bg-cream text-ink placeholder:text-ink-muted/70 focus:border-oxblood-400 outline-none text-sm resize-none transition-colors"
                   />
                 </div>
