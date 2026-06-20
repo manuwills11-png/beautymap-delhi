@@ -21,7 +21,7 @@ import { TierBadge, StarRating } from '@/components/ui/Tier'
 import { ButtonLink } from '@/components/ui/Button'
 import CompareBar from '@/components/CompareBar'
 import { loadResults } from '@/lib/resultsCache'
-import { MehendiBloom, MehendiFlourish } from '@/components/ui/Mehendi'
+import { MehendiFlourish } from '@/components/ui/Mehendi'
 
 type ScoredSalon = Salon & { score: number; explanation?: string }
 
@@ -33,7 +33,7 @@ const TIER_LABEL: Record<string, string> = {
 
 function LoadingState() {
   return (
-    <div className="min-h-dvh bg-ivory pt-24 flex items-center justify-center">
+    <div className="min-h-dvh pt-24 flex items-center justify-center">
       <div className="text-center px-6">
         <span className="inline-grid place-items-center w-16 h-16 rounded-2xl bg-oxblood-50 text-oxblood-700 mb-5 animate-fade-in">
           <Sparkles className="w-7 h-7 animate-pulse" strokeWidth={1.75} aria-hidden="true" />
@@ -286,7 +286,7 @@ function ResultsContent() {
 
   if (error) {
     return (
-      <div className="min-h-dvh bg-ivory pt-24 flex items-center justify-center">
+      <div className="min-h-dvh pt-24 flex items-center justify-center">
         <div className="text-center px-6">
           <span className="inline-grid place-items-center w-16 h-16 rounded-2xl bg-oxblood-50 text-oxblood-700 mb-5">
             <AlertTriangle className="w-7 h-7" strokeWidth={1.75} aria-hidden="true" />
@@ -323,9 +323,7 @@ function ResultsContent() {
   ].filter(Boolean) as string[]
 
   return (
-    <div className={`relative isolate overflow-hidden min-h-dvh bg-ivory pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
-      {/* mehendi signature — faint henna mandala behind the header */}
-      <MehendiBloom className="pointer-events-none absolute -top-10 -right-24 w-[26rem] h-[26rem] text-gold-500/[0.08] -z-10" />
+    <div className={`min-h-dvh pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">

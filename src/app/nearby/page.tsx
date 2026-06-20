@@ -122,7 +122,7 @@ export default function NearbyPage() {
   const hasLocation = effectiveLat !== null && effectiveLng !== null
 
   return (
-    <div className={`min-h-dvh bg-ivory pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
+    <div className={`min-h-dvh pt-24 ${compareIds.length > 0 ? 'pb-32' : 'pb-20'}`}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="mb-8">
           <p className="text-xs font-medium uppercase tracking-widest text-oxblood-700 mb-2">Discover</p>

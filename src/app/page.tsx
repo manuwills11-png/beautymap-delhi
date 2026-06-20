@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { ArrowRight, Sparkles, MapPin, MessageCircle, Star } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/Button'
 import { StarRating } from '@/components/ui/Tier'
-import { MehendiBloom, MehendiFlourish } from '@/components/ui/Mehendi'
+import { MehendiFlourish } from '@/components/ui/Mehendi'
 import Link from 'next/link'
 
 export const revalidate = 3600
@@ -53,14 +53,12 @@ export default async function Home() {
   const showcase = featured.slice(0, 6)
 
   return (
-    <div className="bg-ivory">
+    <div>
       {/* ───────────── Hero ───────────── */}
       <section className="relative overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-24">
         {/* soft ambient wash */}
         <div className="pointer-events-none absolute -top-24 -right-32 w-[32rem] h-[32rem] rounded-full bg-rose-200/40 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -left-24 w-[28rem] h-[28rem] rounded-full bg-gold-200/40 blur-3xl" />
-        {/* mehendi signature — radial henna mandala, top-right */}
-        <MehendiBloom className="pointer-events-none absolute -top-20 -right-24 w-[30rem] h-[30rem] sm:w-[36rem] sm:h-[36rem] text-gold-500/[0.13]" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Copy — asymmetric, left-weighted */}

@@ -61,7 +61,7 @@ export default function IntakePage() {
   }
 
   return (
-    <div className="min-h-dvh pt-24 pb-16 bg-ivory">
+    <div className="min-h-dvh pt-24 pb-16">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-10">

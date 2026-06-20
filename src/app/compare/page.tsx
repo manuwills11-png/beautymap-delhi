@@ -50,7 +50,7 @@ function ValueCell({
 
 function LoadingState() {
   return (
-    <div className="min-h-dvh bg-ivory pt-24 flex items-center justify-center">
+    <div className="min-h-dvh pt-24 flex items-center justify-center">
       <div className="text-center">
         <div className="w-12 h-12 rounded-2xl bg-oxblood-50 animate-pulse mx-auto mb-4" />
         <p className="text-ink-muted">Loading comparison…</p>
@@ -119,7 +119,7 @@ function CompareContent() {
   const minW = 120 + colCount * 210
 
   return (
-    <div className="min-h-dvh bg-ivory pt-24 pb-20">
+    <div className="min-h-dvh pt-24 pb-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="mb-8">

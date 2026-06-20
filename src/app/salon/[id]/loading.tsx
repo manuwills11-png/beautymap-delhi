@@ -1,6 +1,6 @@
 export default function SalonDetailLoading() {
   return (
-    <div className="min-h-dvh bg-ivory pb-20">
+    <div className="min-h-dvh pb-20">
       {/* Hero skeleton */}
       <div className="relative h-[58vh] min-h-[26rem] w-full bg-rose-100 animate-pulse overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-ink/50 via-ink/15 to-transparent" />

@@ -63,7 +63,7 @@ export default async function SalonDetailPage({ params }: { params: { id: string
   const waUrl = waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent(waMessage)}` : null
 
   return (
-    <div className="min-h-dvh bg-ivory pb-20">
+    <div className="min-h-dvh pb-20">
       {/* ── Magazine hero ── */}
       <header className="relative h-[58vh] min-h-[26rem] w-full overflow-hidden">
         {hero ? (
