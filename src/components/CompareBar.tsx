@@ -48,7 +48,7 @@ export default function CompareBar({ selectedIds, selectedSalons, onClear }: Pro
       <div className="px-4 pb-4">
         {/* Inner card animates scale + opacity on entrance for eye-catch */}
         <div
-          className={`max-w-lg mx-auto flex items-center gap-3 bg-oxblood-800 text-cream rounded-2xl px-5 py-3.5 transition-all duration-[250ms] ease-out shadow-[0_8px_40px_rgba(126,31,56,0.55)] ${
+          className={`max-w-lg mx-auto flex items-center gap-3 bg-oxblood-800 text-cream rounded-2xl px-5 py-3.5 transition-all duration-[250ms] ease-out shadow-strong ${
             n > 0 ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
         >

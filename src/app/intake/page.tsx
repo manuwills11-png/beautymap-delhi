@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import {
   Wallet,
   Gem,
@@ -31,14 +32,30 @@ const AREAS = [
 const BUDGETS: { value: string; Icon: LucideIcon; label: string; desc: string }[] = [
   { value: 'budget', Icon: Wallet, label: 'Budget', desc: 'Thoughtful value' },
   { value: 'mid', Icon: Gem, label: 'Mid-Range', desc: 'Quality & balance' },
-  { value: 'premium', Icon: Crown, label: 'Premium', desc: 'Luxury experience' },
+  { value: 'premium', Icon: Crown, label: 'Premium', desc: 'Luxury, top artists' },
 ]
 
-const STYLES: { value: string; Icon: LucideIcon; label: string }[] = [
-  { value: 'traditional', Icon: Flower2, label: 'Traditional' },
-  { value: 'modern', Icon: Sparkles, label: 'Modern' },
-  { value: 'fusion', Icon: Layers, label: 'Fusion' },
+const STYLES: { value: string; Icon: LucideIcon; label: string; desc: string }[] = [
+  { value: 'traditional', Icon: Flower2, label: 'Traditional', desc: 'Classic & rich' },
+  { value: 'modern', Icon: Sparkles, label: 'Modern', desc: 'Contemporary glam' },
+  { value: 'fusion', Icon: Layers, label: 'Fusion', desc: 'Best of both' },
 ]
+
+// Minimal salon shape for the live "match so far" count (no full objects fetched)
+type SalonMeta = {
+  id: string
+  area: string | null
+  price_tier: string | null
+  review_count: number | null
+}
+
+// Mirrors the recommend API's tier inference so the live count feels accurate
+function inferTier(reviewCount: number | null): string {
+  const n = reviewCount ?? 0
+  if (n > 1000) return 'premium'
+  if (n >= 400) return 'mid'
+  return 'budget'
+}
 
 // Typewriter placeholder examples for the vision field
 const VISION_PREFIX = 'e.g. '
@@ -67,6 +84,31 @@ export default function IntakePage() {
   // Starts on the full first phrase so SSR/first paint match (no hydration jump).
   const [visionPlaceholder, setVisionPlaceholder] = useState(VISION_STATIC)
   const [visionEngaged, setVisionEngaged] = useState(false)
+
+  // Live "salons match so far" count — one lightweight fetch, filtered client-side.
+  const [salonsMeta, setSalonsMeta] = useState<SalonMeta[]>([])
+
+  useEffect(() => {
+    const supabase = createClient(
+      (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').replace(/^﻿/, ''),
+      (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '').replace(/^﻿/, '')
+    )
+    supabase
+      .from('salons')
+      .select('id, area, price_tier, review_count')
+      .then(({ data }) => {
+        if (data) setSalonsMeta(data as SalonMeta[])
+      })
+  }, [])
+
+  const matchCount =
+    salonsMeta.length === 0
+      ? null
+      : salonsMeta.filter((s) => {
+          if (area && !(s.area?.toLowerCase().includes(area.toLowerCase()))) return false
+          if (budget && (s.price_tier ?? inferTier(s.review_count)) !== budget) return false
+          return true
+        }).length
 
   useEffect(() => {
     if (visionEngaged) {
@@ -123,8 +165,12 @@ export default function IntakePage() {
   }
 
   return (
-    <div className="min-h-dvh pt-24 pb-16">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+    <div className="relative overflow-hidden min-h-dvh pt-24 pb-16">
+      {/* soft ambient atmosphere — sits over the site-wide mehendi texture */}
+      <div className="pointer-events-none absolute -top-20 -right-24 w-[26rem] h-[26rem] rounded-full bg-rose-200/35 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -bottom-24 -left-24 w-[24rem] h-[24rem] rounded-full bg-gold-200/30 blur-3xl" aria-hidden="true" />
+
+      <div className="relative max-w-2xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-oxblood-700 mb-4 justify-center">
@@ -142,7 +188,7 @@ export default function IntakePage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-cream rounded-3xl shadow-card border border-line p-6 sm:p-9 space-y-9"
+          className="bg-cream rounded-3xl shadow-medium border border-line p-6 sm:p-9 space-y-9"
         >
           {/* Budget */}
           <fieldset>
@@ -158,8 +204,8 @@ export default function IntakePage() {
                     onClick={() => setBudget(selected ? '' : value)}
                     className={`relative flex flex-col items-center text-center min-h-[44px] p-4 rounded-2xl border-2 transition-all duration-[250ms] active:scale-[0.97] [touch-action:manipulation] ${
                       selected
-                        ? 'border-oxblood-600 bg-oxblood-50 shadow-soft scale-[1.02]'
-                        : 'border-line bg-cream hover:border-oxblood-300'
+                        ? 'border-gold-400 bg-oxblood-50 shadow-medium scale-[1.02]'
+                        : 'border-line bg-cream hover:border-oxblood-300 hover:shadow-soft'
                     }`}
                   >
                     {selected && (
@@ -222,7 +268,7 @@ export default function IntakePage() {
               Style preference <span className="text-ink-muted font-normal">(optional)</span>
             </legend>
             <div className="grid grid-cols-3 gap-3">
-              {STYLES.map(({ value, Icon, label }) => {
+              {STYLES.map(({ value, Icon, label, desc }) => {
                 const selected = style === value
                 return (
                   <button
@@ -230,10 +276,10 @@ export default function IntakePage() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setStyle(selected ? '' : value)}
-                    className={`flex flex-col items-center gap-2 min-h-[44px] py-4 rounded-2xl border-2 transition-all duration-[250ms] active:scale-[0.97] [touch-action:manipulation] ${
+                    className={`flex flex-col items-center text-center gap-1.5 min-h-[44px] px-2 py-4 rounded-2xl border-2 transition-all duration-[250ms] active:scale-[0.97] [touch-action:manipulation] ${
                       selected
-                        ? 'border-oxblood-600 bg-oxblood-50 text-oxblood-700 shadow-soft scale-[1.02]'
-                        : 'border-line bg-cream text-ink hover:border-oxblood-300'
+                        ? 'border-gold-400 bg-oxblood-50 text-oxblood-700 shadow-medium scale-[1.02]'
+                        : 'border-line bg-cream text-ink hover:border-oxblood-300 hover:shadow-soft'
                     }`}
                   >
                     <Icon
@@ -242,6 +288,9 @@ export default function IntakePage() {
                       aria-hidden="true"
                     />
                     <span className="font-medium text-sm">{label}</span>
+                    <span className={`text-[11px] leading-tight ${selected ? 'text-oxblood-600' : 'text-ink-muted'}`}>
+                      {desc}
+                    </span>
                   </button>
                 )
               })}
@@ -303,7 +352,29 @@ export default function IntakePage() {
             </div>
           </div>
 
-          <Button type="submit" size="lg" variant="primary" className="w-full">
+          {/* Live match count — updates client-side as filters change */}
+          <div className="flex items-center gap-3 rounded-2xl border border-gold-200 bg-gold-100/40 px-4 py-3">
+            <span className="grid place-items-center w-9 h-9 rounded-xl bg-gold-200/70 text-oxblood-800 flex-shrink-0">
+              <Sparkles className="w-4 h-4" strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <p className="text-sm text-ink-soft" aria-live="polite">
+              {matchCount === null ? (
+                <>Curating Delhi&apos;s finest bridal salons…</>
+              ) : (
+                <>
+                  <strong className="font-semibold text-ink tabular-nums">{matchCount}</strong>{' '}
+                  {matchCount === 1 ? 'salon matches' : 'salons match'} your picks so far
+                </>
+              )}
+            </p>
+          </div>
+
+          <Button
+            type="submit"
+            size="lg"
+            variant="primary"
+            className="w-full shadow-medium hover:shadow-strong"
+          >
             Find my salons
             <ArrowRight className="w-5 h-5" strokeWidth={2} aria-hidden="true" />
           </Button>

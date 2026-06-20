@@ -63,6 +63,9 @@ const config: Config = {
         card: '0 1px 2px rgba(58,13,27,0.04), 0 10px 30px -14px rgba(58,13,27,0.14)',
         'card-hover': '0 6px 12px rgba(58,13,27,0.07), 0 22px 48px -18px rgba(58,13,27,0.24)',
         gold: '0 8px 24px -10px rgba(184,146,74,0.45)',
+        // Warm, maroon-tinted elevation scale (resting → raised → floating)
+        medium: '0 4px 12px -2px rgba(58,13,27,0.10), 0 16px 40px -18px rgba(58,13,27,0.22)',
+        strong: '0 12px 28px -8px rgba(58,13,27,0.22), 0 32px 64px -24px rgba(58,13,27,0.40)',
       },
       letterSpacing: {
         widest: '0.22em',

@@ -10,10 +10,10 @@
     @apply bg-ivory text-ink antialiased;
     font-feature-settings: 'kern', 'liga', 'calt';
   }
-  /* Consistent, visible focus across the app */
+  /* Consistent, visible, on-brand gold focus across the app */
   :focus-visible {
     outline: none;
-    @apply ring-2 ring-oxblood-600 ring-offset-2 ring-offset-ivory rounded-sm;
+    @apply ring-2 ring-gold-600 ring-offset-2 ring-offset-ivory rounded-sm;
   }
   ::selection {
     @apply bg-gold-200 text-ink;
