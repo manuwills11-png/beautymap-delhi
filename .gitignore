@@ -12,6 +12,9 @@ geocoded_data.json
 __pycache__/
 *.pyc
 
+# Build artifacts
+tsconfig.tsbuildinfo
+
 # Next.js
 .next/
 out/
